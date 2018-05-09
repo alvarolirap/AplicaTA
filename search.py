@@ -330,28 +330,28 @@ def bidirectionalSearch(problem):
 	print "Start's successors:", problem.getSuccessors(problem.getStartState())
 	frontier1 = util.Queue()
 	frontier2 = util.Queue()
-	exp_n1 = list()
-	exp_n2 = list()
 	frontier1.push((problem.getStartState(), list()))
 	frontier2.push((problem.getGoalState(), list()))
 	visited_node=1
 	goal2 = problem.getStartState()
+	exp_n1 = list()
+	exp_n2 = list()
 	while not frontier1.isEmpty():
 		node1 = frontier1.pop()
-		for data in problem.getSuccessors(node1[0]):
-			if not data[0] in exp_n1:
-				if problem.isGoalState(data[0]):
-					return node1[1] + [data[1]]
-				frontier1.push((data[0], node1[1] + [data[1]]))
-				exp_n1.append(data[0])
+		for node in problem.getSuccessors(node1[0]):
+			if not node[0] in exp_n1:
+				if problem.isGoalState(node[0]):
+					return node1[1] + [node[1]]
+				frontier1.push((node[0], node1[1] + [node[1]]))
+				exp_n1.append(node[0])
 		if not frontier2.isEmpty():	
 			node2 = frontier2.pop()
-			for data in problem.getSuccessors(node2[0]):
-				if not data[0] in exp_n2:
-					if data[0] == goal2:
-						return [data[1]] + node2[1][::-1]
-					frontier2.push((data[0], node2[1] + [data[1]]))
-					exp_n2.append(data[0])
+			for node in problem.getSuccessors(node2[0]):
+				if not node[0] in exp_n2:
+					if node[0] == goal2:
+						return [node[1]] + node2[1][::-1]
+					frontier2.push((node[0], node2[1] + [node[1]]))
+					exp_n2.append(node[0])
 		for node in frontier1.list:
 			for elem in frontier2.list:
 				if node[0] == elem[0]:
@@ -360,10 +360,14 @@ def bidirectionalSearch(problem):
 					actions2 = elem[1]
 					actions2 = actions2[::-1]
 					for i in range(len(actions2)):
-						if actions2[i] == "North": actions2[i] = "South"
-						elif actions2[i] == "South": actions2[i] = "North"
-						elif actions2[i] == "West": actions2[i] = "East"
-						elif actions2[i] == "East": actions2[i] = "West"
+						if actions2[i] == "East": 
+							actions2[i] = "West"
+						elif actions2[i] == "North":
+							actions2[i] = "South"
+						elif actions2[i] == "South": 
+							actions2[i] = "North"
+						elif actions2[i] == "West": 
+							actions2[i] = "East"
 					return actions1 + actions2
 	return []	
 # Abbreviations
