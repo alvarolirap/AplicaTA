@@ -334,6 +334,7 @@ def bidirectionalSearch(problem):
 	exp_n2 = list()
 	frontier1.push((problem.getStartState(), list()))
 	frontier2.push((problem.getGoalState(), list()))
+	visited_node=1
 	goal2 = problem.getStartState()
 	while not frontier1.isEmpty():
 		node1 = frontier1.pop()
@@ -354,6 +355,7 @@ def bidirectionalSearch(problem):
 		for node in frontier1.list:
 			for elem in frontier2.list:
 				if node[0] == elem[0]:
+					print 'Solution find in state', node[0]
 					actions1 = node[1]
 					actions2 = elem[1]
 					actions2 = actions2[::-1]
