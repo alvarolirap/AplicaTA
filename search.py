@@ -138,6 +138,7 @@ def breadthFirstSearch(problem):
 	
 	frontier = util.Queue()
 	visited = dict()
+
 	state = problem.getStartState()
 	explored_node = {}
 	explored_node["parent"] = None
@@ -153,7 +154,6 @@ def breadthFirstSearch(problem):
 			continue
 		visited[state] = True
 		if problem.isGoalState(state) == True:
-
 			break
 		for child in problem.getSuccessors(state):
 			if child[0] not in visited:
@@ -330,46 +330,79 @@ def bidirectionalSearch(problem):
 	print "Start's successors:", problem.getSuccessors(problem.getStartState())
 	frontier1 = util.Queue()
 	frontier2 = util.Queue()
-	frontier1.push((problem.getStartState(), list()))
-	frontier2.push((problem.getGoalState(), list()))
-	visited_node=1
-	goal2 = problem.getStartState()
-	exp_n1 = list()
-	exp_n2 = list()
-	while not frontier1.isEmpty():
-		node1 = frontier1.pop()
-		for node in problem.getSuccessors(node1[0]):
-			if not node[0] in exp_n1:
-				if problem.isGoalState(node[0]):
-					return node1[1] + [node[1]]
-				frontier1.push((node[0], node1[1] + [node[1]]))
-				exp_n1.append(node[0])
-		if not frontier2.isEmpty():	
-			node2 = frontier2.pop()
-			for node in problem.getSuccessors(node2[0]):
-				if not node[0] in exp_n2:
-					if node[0] == goal2:
-						return [node[1]] + node2[1][::-1]
-					frontier2.push((node[0], node2[1] + [node[1]]))
-					exp_n2.append(node[0])
-		for node in frontier1.list:
-			for elem in frontier2.list:
-				if node[0] == elem[0]:
-					print 'Solution find in state', node[0]
-					actions1 = node[1]
-					actions2 = elem[1]
-					actions2 = actions2[::-1]
-					for i in range(len(actions2)):
-						if actions2[i] == "East": 
-							actions2[i] = "West"
-						elif actions2[i] == "North":
-							actions2[i] = "South"
-						elif actions2[i] == "South": 
-							actions2[i] = "North"
-						elif actions2[i] == "West": 
-							actions2[i] = "East"
-					return actions1 + actions2
-	return []	
+
+	visited1 = dict()
+	state1 = problem.getStartState()
+	explored_node1 = {}
+	explored_node1["parent"] = None
+	explored_node1["action"] = None
+	explored_node1["state"] = state1
+	frontier1.push(explored_node1)
+
+
+
+	visited2 = dict()
+	state2 = problem.getGoalState()
+	explored_node2 = {}
+	explored_node2["parent"] = None
+	explored_node2["action"] = None
+	explored_node2["state"] = state2
+	frontier2.push(explored_node2)
+
+	print explored_node1
+	print explored_node2
+	while not frontier1.isEmpty() and not frontier2.isEmpty():
+		if not frontier1.isEmpty():
+			explored_node1 = frontier1.pop()
+			state1 = explored_node1["state"]
+			if visited1.has_key(state1):
+				continue
+			visited1[state1] = True
+			if problem.isGoalState(state1) == True:
+				break
+
+		if not frontier2.isEmpty():
+			explored_node2 = frontier2.pop()
+			state2 = explored_node2["state"]
+			if visited2.has_key(state1):
+				continue
+			visited2[state2] = True
+
+		if state1 == state2:
+			break
+
+		for child in problem.getSuccessors(state1):
+			if child[0] not in visited1:
+				son_node = {}
+				son_node["parent"] = explored_node1
+				son_node["state"] = child[0]
+				son_node["action"] = child[1]
+				frontier1.push(son_node)
+
+		for child in problem.getSuccessors(state2):
+			if child[0] not in visited2:
+				son_node = {}
+				son_node["parent"] = explored_node2
+				son_node["state"] = child[0]
+				son_node["action"] = child[1]
+				frontier2.push(son_node)
+	actions1 = []
+	actions2 = []
+	while explored_node1["action"] != None:
+		actions1.insert(0, explored_node1["action"])
+		explored_node1 = explored_node1["parent"]
+
+	while explored_node2["action"] != None:
+		actions2.insert(0, explored_node2["action"])
+		explored_node2 = explored_node2["parent"]
+	actions = []
+	for i in range(1,len(actions2)-1):
+		if actions2[len(actions2)-1-i] == "North": actions.append("South")
+		elif actions2[len(actions2)-1-i] == "South": actions.append("North")
+		elif actions2[len(actions2)-1-i] == "West": actions.append("East")
+		elif actions2[len(actions2)-1-i] == "East": actions.append("West")
+	return actions1	+ actions
+	
 # Abbreviations
 bfs = breadthFirstSearch
 dfs = depthFirstSearch

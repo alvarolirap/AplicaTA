@@ -291,13 +291,12 @@ class CornersProblem(search.SearchProblem):
         "*** YOUR CODE HERE ***"
         self._visited, self._visitedlist = {}, []
         corner_state = [0, 0, 0, 0]
-        corner_state2 =[1,1,1,1]
         # check if start position is in any corner
         if self.startingPosition in self.corners:
             idx = self.corners.index(self.startingPosition)
             corner_state[idx] = 1
         self.startState = (self.startingPosition, tuple(corner_state))
-        self.GoalState=(self.startingPosition, tuple(corner_state2))
+        self.goalState = (self.startingPosition, (1,1,1,1))
         
     def getStartState(self):
         "Returns the start state (in your state space, not the full Pacman state space)"
@@ -305,14 +304,13 @@ class CornersProblem(search.SearchProblem):
         return self.startState
     def getGoalState(self):
         "*** YOUR CODE HERE ***"
-        return self.GoalState    
+        return self.goalState    
     def isGoalState(self, state):
         "Returns whether this search state is a goal state of the problem"
         "*** YOUR CODE HERE ***"
         #print self.startState[0], state
         isGoal = not(0 in state[1]) and state[0] == self.startState[0]
-        
-
+ 
         # For display purposes only
         if isGoal:
             self._visitedlist.append(state[0])
@@ -322,12 +320,7 @@ class CornersProblem(search.SearchProblem):
                     __main__._display.drawExpandedCells(self._visitedlist) #@UndefinedVariable
 
         return isGoal
-    def isGoalState2(self, state):
-        "Returns whether this search state is a goal state of the problem"
-        "*** YOUR CODE HERE ***"
-        #print self.startState[0], state
-        isGoal = not(1 in state[1]) and state[0] == self.startState[0]
-        return isGoal         
+       
     def getSuccessors(self, state):
         """
         Returns successor states, the actions they require, and a cost of 1.
