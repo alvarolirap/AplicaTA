@@ -98,7 +98,6 @@ class SearchAgent(Agent):
 			raise AttributeError, prob + ' is not a search problem type in SearchAgents.py.'
 		self.searchType = globals()[prob]
 		print('[SearchAgent] using problem type ' + prob)
-        print 'Hola'
 
     def registerInitialState(self, state):
         """
