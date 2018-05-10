@@ -291,12 +291,13 @@ class CornersProblem(search.SearchProblem):
         "*** YOUR CODE HERE ***"
         self._visited, self._visitedlist = {}, []
         corner_state = [0, 0, 0, 0]
+        corner_state2 =[1, 1, 1, 1]
         # check if start position is in any corner
         if self.startingPosition in self.corners:
             idx = self.corners.index(self.startingPosition)
             corner_state[idx] = 1
         self.startState = (self.startingPosition, tuple(corner_state))
-        self.goalState = (self.startingPosition, (1,1,1,1))
+        self.goalState=(self.startingPosition, tuple(corner_state2))
         
     def getStartState(self):
         "Returns the start state (in your state space, not the full Pacman state space)"
@@ -310,7 +311,8 @@ class CornersProblem(search.SearchProblem):
         "*** YOUR CODE HERE ***"
         #print self.startState[0], state
         isGoal = not(0 in state[1]) and state[0] == self.startState[0]
- 
+        
+
         # For display purposes only
         if isGoal:
             self._visitedlist.append(state[0])
@@ -320,7 +322,7 @@ class CornersProblem(search.SearchProblem):
                     __main__._display.drawExpandedCells(self._visitedlist) #@UndefinedVariable
 
         return isGoal
-       
+
     def getSuccessors(self, state):
         """
         Returns successor states, the actions they require, and a cost of 1.
@@ -359,6 +361,34 @@ class CornersProblem(search.SearchProblem):
                 else:
                     corner_state = list(deepcopy(state[1]))
 
+                successors.append(((nextState, tuple(corner_state)), action, cost))
+
+        # Bookkeeping for display purpose
+        if state not in self._visited:
+            self._visited[state] = True
+            self._visitedlist.append(state[0])
+
+        self._expanded += 1 # DO NOT CHANGE
+        return successors
+
+    def getInvertedSuccessors(self, state):
+        successors = []
+        for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
+            "*** YOUR CODE HERE ***"
+            x,y = state[0]
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            hitsWall = self.walls[nextx][nexty]
+            if not hitsWall:
+                nextState = (nextx, nexty)
+                cost = 1
+                from copy import deepcopy
+                if nextState in self.corners:
+                    index = self.corners.index(nextState)
+                    corner_state = list(deepcopy(state[1]))
+                    corner_state[index] = 0
+                else:
+                    corner_state = list(deepcopy(state[1]))
                 successors.append(((nextState, tuple(corner_state)), action, cost))
 
         # Bookkeeping for display purpose

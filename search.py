@@ -138,7 +138,6 @@ def breadthFirstSearch(problem):
 	
 	frontier = util.Queue()
 	visited = dict()
-
 	state = problem.getStartState()
 	explored_node = {}
 	explored_node["parent"] = None
@@ -154,6 +153,7 @@ def breadthFirstSearch(problem):
 			continue
 		visited[state] = True
 		if problem.isGoalState(state) == True:
+
 			break
 		for child in problem.getSuccessors(state):
 			if child[0] not in visited:
@@ -323,86 +323,106 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 	print 'Final position:', state[0]
 	print 'Visited nodes:',visited_node
 	return actions
+
+def inFrontier(node, frontier):
+	
+	for nodeInFrontier in frontier:
+		if node["state"] == nodeInFrontier["state"]:
+			return nodeInFrontier,True
+	return None,False
+		
+
 def bidirectionalSearch(problem):
 	print ''
 	print "Start:", problem.getStartState()
 	print "Is the start a goal?", problem.isGoalState(problem.getStartState())
 	print "Start's successors:", problem.getSuccessors(problem.getStartState())
-	frontier1 = util.Queue()
-	frontier2 = util.Queue()
 
 	visited1 = dict()
 	state1 = problem.getStartState()
+	frontier1 = util.Queue()
 	explored_node1 = {}
 	explored_node1["parent"] = None
 	explored_node1["action"] = None
 	explored_node1["state"] = state1
 	frontier1.push(explored_node1)
 
-
-
 	visited2 = dict()
 	state2 = problem.getGoalState()
+	frontier2 = util.Queue()
 	explored_node2 = {}
 	explored_node2["parent"] = None
 	explored_node2["action"] = None
 	explored_node2["state"] = state2
 	frontier2.push(explored_node2)
 
-	print explored_node1
-	print explored_node2
+	visited_node = 2
+
 	while not frontier1.isEmpty() and not frontier2.isEmpty():
 		if not frontier1.isEmpty():
 			explored_node1 = frontier1.pop()
+			visited_node = visited_node + 1
 			state1 = explored_node1["state"]
-			if visited1.has_key(state1):
-				continue
-			visited1[state1] = True
-			if problem.isGoalState(state1) == True:
-				break
+			if not visited1.has_key(hash(state1)):
+				visited1[hash(state1)] = True
+				if problem.isGoalState(state1) == True:
+					break
+				nodoTemp, res = inFrontier(explored_node1,frontier2.list)
+				if res:
+					explored_node2 = nodoTemp 
+					break
+				for child in problem.getSuccessors(state1):
+					if not visited1.has_key(hash(child[0])):
+						son_node = {}
+						son_node["parent"] = explored_node1
+						son_node["action"] = child[1]
+						son_node["state"] = child[0]
+						frontier1.push(son_node)
 
 		if not frontier2.isEmpty():
 			explored_node2 = frontier2.pop()
+			visited_node = visited_node + 1
 			state2 = explored_node2["state"]
-			if visited2.has_key(state1):
-				continue
-			visited2[state2] = True
-
-		if state1 == state2:
-			break
-
-		for child in problem.getSuccessors(state1):
-			if child[0] not in visited1:
-				son_node = {}
-				son_node["parent"] = explored_node1
-				son_node["state"] = child[0]
-				son_node["action"] = child[1]
-				frontier1.push(son_node)
-
-		for child in problem.getSuccessors(state2):
-			if child[0] not in visited2:
-				son_node = {}
-				son_node["parent"] = explored_node2
-				son_node["state"] = child[0]
-				son_node["action"] = child[1]
-				frontier2.push(son_node)
+			if not visited2.has_key(hash(state2)):
+				visited2[hash(state2)] = True
+				if problem.getStartState() == state2:
+					break
+				nodoTemp, res = inFrontier(explored_node2,frontier1.list)
+				if res:
+					explored_node1 = nodoTemp 
+					break
+				for child in problem.getInvertedSuccessors(state2):
+					if not visited2.has_key(hash(child[0])):
+						son_node = {}
+						son_node["parent"] = explored_node2
+						son_node["action"] = child[1]
+						son_node["state"] = child[0]
+						frontier2.push(son_node)
+	
 	actions1 = []
-	actions2 = []
+	actions2temp = []
+	print ''
+	print 'Search algorithms meet at the position:', explored_node1["state"][0]
+	print 'Visited nodes:',visited_node
+	
 	while explored_node1["action"] != None:
 		actions1.insert(0, explored_node1["action"])
 		explored_node1 = explored_node1["parent"]
 
 	while explored_node2["action"] != None:
-		actions2.insert(0, explored_node2["action"])
+		actions2temp.insert(0, explored_node2["action"])
 		explored_node2 = explored_node2["parent"]
-	actions = []
-	for i in range(1,len(actions2)-1):
-		if actions2[len(actions2)-1-i] == "North": actions.append("South")
-		elif actions2[len(actions2)-1-i] == "South": actions.append("North")
-		elif actions2[len(actions2)-1-i] == "West": actions.append("East")
-		elif actions2[len(actions2)-1-i] == "East": actions.append("West")
-	return actions1	+ actions
+
+	actions2 = []
+	for i in range(0,len(actions2temp)):
+		if actions2temp[len(actions2temp)-1-i] == "North": actions2.append("South")
+		elif actions2temp[len(actions2temp)-1-i] == "South": actions2.append("North")
+		elif actions2temp[len(actions2temp)-1-i] == "West": actions2.append("East")
+		elif actions2temp[len(actions2temp)-1-i] == "East": actions2.append("West")
 	
+	return actions1 + actions2
+
+
 # Abbreviations
 bfs = breadthFirstSearch
 dfs = depthFirstSearch
